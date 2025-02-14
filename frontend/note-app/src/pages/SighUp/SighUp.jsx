@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import Navbar from '../../components/Navbar/Navbar'
-
-
+import { Link } from 'react-router-dom'
+import { validateEmail } from '../../utils/helper'
+import PasswordInput from '../../components/Input/PasswordInput'
 
 const SighUp = () => {
 
@@ -11,7 +12,25 @@ const SighUp = () => {
   const [error, setError] = useState(null)
 
   const handleSighUp = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
+    
+    if (!name){
+      setError('Please enter your name')
+      return
+    }
+    if (validateEmail(email)){
+      setError('Please enter valid email address')
+      return
+    }
+
+    if (!password){
+      setError('Please enter the password')
+      return
+    }
+
+    setError('')
+
+    //sighup api call
   }
 
   return (
@@ -35,7 +54,19 @@ const SighUp = () => {
                     value={name} 
                     onChange={(event)=>setEmail(event.target.value)} //event.target ссылка на Input
                 />
-                
+
+                <PasswordInput 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}    
+                />
+                {error && <p className='text-red-500 text-xs pb-1'>{error}</p>}
+                <button type='submit' className='btn-primary'>Create Account</button>
+                <p className='text-sm text-center mt-4'>
+                    Already have an account?{' '}
+                    <Link to='/login' className='font-medium text-blue-600 underline'>
+                        Login
+                    </Link>
+                </p>
             </form>
         </div>
     </div>
