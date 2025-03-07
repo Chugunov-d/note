@@ -154,7 +154,9 @@ app.get('/profile', authenticateToken, async (req, res) => {
         return res.status(404).json({ message: 'Пользователь не найден' });
       }
   
-      res.json(user.rows[0]);
+      res.json({
+        user: user.rows[0]
+    });
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: 'Ошибка сервера' });

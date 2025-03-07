@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import Navbar from '../../components/Navbar/Navbar'
-import { Link } from 'react-router-dom'
+import { Link,  useNavigate  } from 'react-router-dom'
 import { validateEmail } from '../../utils/helper'
 import PasswordInput from '../../components/Input/PasswordInput'
+import axiosInstance from '../../utils/axiosInstance'
 
 const SighUp = () => {
 
@@ -11,6 +12,8 @@ const SighUp = () => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
 
+  const navigate = useNavigate()
+
   const handleSighUp = async (e) => {
     e.preventDefault();
     
@@ -18,7 +21,7 @@ const SighUp = () => {
       setError('Please enter your name')
       return
     }
-    if (validateEmail(email)){
+    if (!validateEmail(email)){
       setError('Please enter valid email address')
       return
     }
@@ -31,6 +34,28 @@ const SighUp = () => {
     setError('')
 
     //sighup api call
+    try{
+      const response = await axiosInstance.post("/register",{
+          fullName: name,
+          email: email,
+          password: password
+      })
+      console.log("Server response:", response.data);
+      if (response.data && response.data.error){
+          setError(response.data.message)
+          return
+      }
+      if (response.data && response.data.token){
+        localStorage.setItem('token', response.data.token)
+        navigate('/dashboard')
+    }
+  } catch (error) {
+      if (error.response && error.response.data && error.response.data.message){
+          setError(error.response.data.message)
+      } else {
+          setError('An unexpected error occurred. Please try again')
+      }
+  }
   }
 
   return (
@@ -51,7 +76,7 @@ const SighUp = () => {
                     type="text" 
                     placeholder='Email' 
                     className='input-box' 
-                    value={name} 
+                    value={email} 
                     onChange={(event)=>setEmail(event.target.value)} //event.target ссылка на Input
                 />
 

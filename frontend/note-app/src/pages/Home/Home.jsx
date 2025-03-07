@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Navbar from '../../components/Navbar/Navbar'
 import NoteCard from '../../components/Cards/NoteCard'
 import { MdAdd } from 'react-icons/md'
 import AddEditNotes from './AddEditNotes'
 import Modal from 'react-modal'
+import { useNavigate } from 'react-router-dom'
+import axiosInstance from '../../utils/axiosInstance'
 
 export const Home = () => {
 
@@ -14,14 +16,36 @@ export const Home = () => {
     data: null,
   })
 
+  const [userInfo, setUserInfo] = useState(null)
 
+  const navigate = useNavigate()
 
+  const getUserInfo = async () =>{
+    try {
+      const response = await axiosInstance.get("/profile")
+      console.log(response.data)
+      if (response.data && response.data.user){
+        setUserInfo(response.data.user);
+      }
+    } catch (error) {
+      if (error.response.status === 401){
+        localStorage.clear()
+        navigate("/login")
+      }
+    }
+  };
 
-
+  useEffect(() => {
+    getUserInfo();
+    return () => {
+    }
+  }, [])
+  console.log('Home', userInfo)
+  console.log('Home_name', userInfo?.full_name)
 
   return (
     <>
-      <Navbar/>
+      <Navbar userInfo={userInfo}/>
         <div className='grid grid-cols-4  gap-4 m-8'>
           <div className='container mx-auto w-100'>
             <NoteCard 

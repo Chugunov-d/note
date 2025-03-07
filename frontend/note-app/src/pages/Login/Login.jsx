@@ -27,8 +27,8 @@ const handleLogin = async (e) => {
         return
     }
     setError("")
-    //Login API call
 
+    //Login API call
     try{
         const response = await axiosInstance.post("/login",{
             email: email,
