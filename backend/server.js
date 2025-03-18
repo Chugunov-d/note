@@ -173,7 +173,7 @@ app.get('/notes', authenticateToken, async (req, res) => {
         [userId]
       );
   
-      res.json(notes.rows);
+      res.json({notes:notes.rows});
   
     } catch (err) {
       console.error(err);
@@ -197,7 +197,7 @@ app.post('/add-note', authenticateToken, async (req, res) => {
         [title, content, tags || [], isPinned || false, userId]
       );
   
-      res.status(201).json(newNote.rows[0]);
+      res.status(201).json({note:newNote.rows[0]});
   
     } catch (err) {
       console.error(err);

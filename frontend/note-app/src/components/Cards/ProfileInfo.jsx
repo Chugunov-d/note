@@ -2,7 +2,6 @@ import React from 'react'
 import { getInitials } from '../../utils/helper'
 
 const ProfileInfo = ({userInfo, onLogout}) => {
-  console.log('userInfo', userInfo?.full_name)
   return (
     userInfo && (
     <div className='flex item-center gap-3'>
