@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import Navbar from '../../components/Navbar/Navbar'
 import NoteCard from '../../components/Cards/NoteCard'
+import Toast from '../../components/ToastMessage/Toast'
 import { MdAdd } from 'react-icons/md'
 import AddEditNotes from './AddEditNotes'
 import Modal from 'react-modal'
-import { useNavigate } from 'react-router-dom'
+import { data, useNavigate } from 'react-router-dom'
 import axiosInstance from '../../utils/axiosInstance'
 import moment from 'moment'
 
@@ -17,11 +18,38 @@ export const Home = () => {
     data: null,
   })
 
+  const [showToastMsg, setShowToastMsg] = useState({
+    isShown:false,
+    message:'',
+    type:'add',
+  })
+
   const [allNotes, setAllNotes] = useState([])
 
   const [userInfo, setUserInfo] = useState(null)
 
   const navigate = useNavigate()
+
+  const handleEdit = (noteDetails)=>{
+    setOpenAddEditModal({isShown: true, data: noteDetails, type:"edit"})
+  }
+
+
+  const showToastMessage = (message,type) =>{
+    setShowToastMsg({
+      isShown:true,
+      message,
+      type
+    })
+  }
+
+
+  const handleCloseToast = () =>{
+    setShowToastMsg({
+      isShown:false,
+      message:''
+    })
+  }
 
   const getUserInfo = async () =>{
     try {
@@ -50,6 +78,26 @@ export const Home = () => {
     }
   }
   
+  const deleteNote = async (data) =>{
+    const noteId = data.id;
+    try {
+      const response = await axiosInstance.delete(`/delete-note/` + noteId);
+      console.log('res',response)
+      if (response.data && !response.data.error) {
+        showToastMessage('Note Deleted Successfully', 'delete')
+        getAllNotes()
+      }
+    } catch (error) {
+      if (
+        error.response && error.response.data && error.response.data.message
+      ) {
+        console.log("An unexpected error")
+      }
+    }
+  }
+
+
+
   useEffect(() => {
     getAllNotes();
     getUserInfo();
@@ -70,8 +118,8 @@ export const Home = () => {
                   content={item.content}
                   tags={item.tags}
                   isPinned={item.ispinned}
-                  onEdit={()=>{}}  
-                  onDelete={()=>{}}
+                  onEdit={()=>{handleEdit(item)}}  
+                  onDelete={()=>{deleteNote(item)}}
                   onPinNote={()=>{}}    
                 />
               ))}
@@ -104,9 +152,16 @@ export const Home = () => {
           noteData={openAddEditModal.data}
           onClose={()=>{setOpenAddEditModal({isShown:false, type:'add', data:null})}}
           getAllNotes={getAllNotes}
+          showToastMessage={showToastMessage}
         />
         </Modal>
-       
+
+       <Toast 
+          isShown={showToastMsg.isShown}
+          message={showToastMsg.message}
+          type={showToastMsg.type}
+          onCLose={handleCloseToast}
+       />
        
     </>
   )

@@ -197,7 +197,12 @@ app.post('/add-note', authenticateToken, async (req, res) => {
         [title, content, tags || [], isPinned || false, userId]
       );
   
-      res.status(201).json({note:newNote.rows[0]});
+      res.status(201).json(
+        {
+          note:newNote.rows[0],
+          message:'Note Added Successfully'
+        }
+      );
   
     } catch (err) {
       console.error(err);
@@ -230,7 +235,12 @@ app.put('/update-note/:id', authenticateToken, async (req, res) => {
         [title, content, tags || [], isPinned || false, id]
       );
   
-      res.json(updatedNote.rows[0]);
+      res.json(
+        { note:updatedNote.rows[0],
+          message:'Note Updated Successfully'
+        }
+
+      );
   
     } catch (err) {
       console.error(err);
@@ -257,7 +267,7 @@ app.delete('/delete-note/:id', authenticateToken, async (req, res) => {
       // Удаляем заметку
       await pool.query('DELETE FROM notes WHERE id = $1', [id]);
   
-      res.status(204).send(); // 204 No Content
+      res.status(200).json({error: false, message: 'Note deleted'}); // 204 No Content
   
     } catch (err) {
       console.error(err);
