@@ -24,7 +24,7 @@ const onClearSearch = ()=>{
 }
   return (
     <div className='bg-white flex items-center justify-between px-6 py-2 shadow-sm'>
-      <h2 className='text-lg font-medium text-black py-2'>Notes</h2>
+      <h2 className='text-lg font-medium text-black py-2 cursor-pointer' onClick={onClearSearch}>Notes</h2>
       <div className={`flex justify-between ${userInfo ? 'w-120' : ''} mr-5`}>
         <SearchBar 
           value={searchQuery}

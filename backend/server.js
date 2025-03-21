@@ -169,7 +169,7 @@ app.get('/notes', authenticateToken, async (req, res) => {
       const userId = req.user.id; // userId берется из JWT токена
   
       const notes = await pool.query(
-        'SELECT id, title, content, tags, isPinned, userId, createdOn FROM notes WHERE userId = $1',
+        'SELECT id, title, content, tags, isPinned, userId, createdOn FROM notes WHERE userId = $1 ORDER BY isPinned DESC, createdOn DESC',
         [userId]
       );
   
