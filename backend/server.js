@@ -323,7 +323,7 @@ app.patch('/update-note-pinned/:id', authenticateToken, async (req, res) => {
       [isPinned, id]
     );
 
-    res.json(updatedNote.rows[0]);
+    res.json({notes:updatedNote.rows[0]});
 
   } catch (err) {
     console.error(err);
@@ -331,6 +331,46 @@ app.patch('/update-note-pinned/:id', authenticateToken, async (req, res) => {
   }
 });
 
+app.get('/search-notes/', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id; // userId берется из JWT токена
+    const { query } = req.query; // Параметр поиска (строка с ключевыми словами)
+
+    // Проверяем, есть ли запрос
+    if (!query) {
+      return res.status(400).json({ message: 'Параметр поиска (query) обязателен' });
+    }
+
+    // Разделяем запрос на отдельные слова
+    const words = query.split(/\s+/).filter(word => word.length > 0); // Убираем пустые строки
+
+    // Базовый запрос
+    let sqlQuery = 'SELECT * FROM notes WHERE userId = $1';
+    const queryParams = [userId];
+    let paramIndex = 2; // Следующий индекс для параметров
+
+    // Добавляем условия поиска по словам
+    if (words.length > 0) {
+      const wordConditions = words.map((word, index) => {
+        queryParams.push(`%${word}%`); // Добавляем слово в параметры
+        return `(title ILIKE $${paramIndex + index} OR content ILIKE $${paramIndex + index})`;
+      }).join(' AND '); // Объединяем условия с помощью AND
+
+      sqlQuery += ` AND (${wordConditions})`;
+      paramIndex += words.length; // Увеличиваем индекс параметров
+    }
+
+    // Выполняем запрос
+    const result = await pool.query(sqlQuery, queryParams);
+
+    // Возвращаем результат
+    res.json({notes:result.rows});
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Ошибка сервера' });
+  }
+});
 
 
 // Запуск сервера
